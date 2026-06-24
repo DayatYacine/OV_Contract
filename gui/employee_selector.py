@@ -1,14 +1,10 @@
-# gui/employee_selector.py
-import sqlite3
-import sys
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog,
                              QLineEdit, QTableWidget, QTableWidgetItem, QHeaderView, 
                              QMenu, QDialog, QFormLayout, QDialogButtonBox, QMessageBox)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
-from services.database import get_connection
 from services.employee_service import fetch_employees
-from gui.employee_form import EmployeeFormDialog
+from gui.employee_form_window import EmployeeFormDialog
 
 
 class EmployeeSelectorWindow(QWidget):
@@ -157,23 +153,70 @@ class EmployeeSelectorWindow(QWidget):
         # means right-click happened on empty space or no row is selected
         if current_row == -1:
             return
-
-        menu = QMenu(self)
-
-        # Update Action
-        act_edit = QAction("Update Employee", self)
-        # Pass the specific row index cleanly via lambda
-        act_edit.triggered.connect(lambda: self.open_edit_dialog(current_row))
-        menu.addAction(act_edit)
-
-        # Delete Action
-        act_delete = QAction("Delete Employee", self)
-        # Pass it as a list if your delete_rows method still expects a list/iterable
-        act_delete.triggered.connect(lambda: self.delete_rows([current_row]))
-        menu.addAction(act_delete)
+        
+        context_menu = QMenu(self)
     
-        # Map the viewport local position to the global screen position
-        menu.exec(self.table.viewport().mapToGlobal(position))
+        # ─── SECTION 1 ───
+        view_action = QAction("View", self)
+        context_menu.addAction(view_action)
+        
+        context_menu.addSeparator()
+        
+        # ─── SECTION 2 ───
+        edit_action = QAction("Edit", self)
+        delete_action = QAction("Delete", self)
+        context_menu.addActions([edit_action, delete_action])
+        
+        context_menu.addSeparator()
+        
+        # ─── SECTION 3 ───
+        new_contract_action = QAction("New Contract", self)
+        renew_contract_action = QAction("Renew Contract", self)
+        view_contracts_action = QAction("View Contracts", self)
+        context_menu.addActions([new_contract_action, renew_contract_action, view_contracts_action])
+        
+        context_menu.addSeparator()
+        
+        # ─── SECTION 4: SUBMENU (Generate Documents ▶) ───
+        generate_submenu = QMenu("Generate Documents", self)
+        
+        # Mock document options for the submenu
+        gen_contract_doc = QAction("Contract Certificate", self)
+        gen_work_doc = QAction("Work Certificate", self)
+        generate_submenu.addActions([gen_contract_doc, gen_work_doc])
+        
+        context_menu.addMenu(generate_submenu)
+        
+        context_menu.addSeparator()
+        
+        # ─── SECTION 5 ───
+        duplicate_action = QAction("Duplicate Employee", self)
+        context_menu.addAction(duplicate_action)
+        
+        # ─── CONNECT ACTIONS TO FUNCTIONS ───
+        # Example wiring:
+        # new_contract_action.triggered.connect(self.open_contract_window)
+        # edit_action.triggered.connect(self.open_contract_window)
+        
+        # Executing the menu at the exact right position on screen
+        context_menu.exec(self.mapToGlobal(position))
+
+        # menu = QMenu(self)
+
+        # # Update Action
+        # act_edit = QAction("Update Employee", self)
+        # # Pass the specific row index cleanly via lambda
+        # act_edit.triggered.connect(lambda: self.open_edit_dialog(current_row))
+        # menu.addAction(act_edit)
+
+        # # Delete Action
+        # act_delete = QAction("Delete Employee", self)
+        # # Pass it as a list if your delete_rows method still expects a list/iterable
+        # act_delete.triggered.connect(lambda: self.delete_rows([current_row]))
+        # menu.addAction(act_delete)
+    
+        # # Map the viewport local position to the global screen position
+        # menu.exec(self.table.viewport().mapToGlobal(position))
         
         # # Count rows selected by looking at selected ranges
         # selected_rows = []

@@ -2,7 +2,8 @@ import sys
 from PyQt6.QtWidgets import QApplication
 from services.database import init_db
 # from gui.main_window_old import MainWindow
-from gui.employee_selector import EmployeeSelectorWindow
+# from gui.employee_selector import EmployeeSelectorWindow
+from gui.main_window import MainWindow
 
 
 def main():
@@ -15,7 +16,7 @@ def main():
     app.setApplicationName("OV Contract")
     app.setOrganizationName("Oran Vert")
 
-    window = EmployeeSelectorWindow()
+    window = MainWindow()
     window.show()
 
     sys.exit(app.exec())

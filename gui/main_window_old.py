@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import (
     QButtonGroup,
 )
 
+
 from gui.employee_selector import EmployeeSelectorWindow
 
 DEFAULT_TEMPLATE = r"C:\Users\Yacine\Desktop\CONTRAT.odt"

@@ -76,13 +76,16 @@ class ContractDialog(QDialog):
 # ─────────────────────────────────────────────────────────────────
 # 2. MAIN EMPLOYEE WINDOW WITH TABS
 # ─────────────────────────────────────────────────────────────────
-class EmployeeManagementApp(QWidget):
-    def __init__(self):
+class EmployeeFormDialog(QDialog):
+    def __init__(self, employee_data=None, parent=None):
         super().__init__()
+        self.employee_data = employee_data  # sqlite3.Row or dict if editing, else None
+        self.setWindowTitle("New Employee" if not employee_data else "Update Employee")
+        self.setMinimumWidth(450)
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("Employee Management System")
+        # self.setWindowTitle("Employee")
         self.resize(750, 550)
         
         # Base Application Layout
@@ -110,11 +113,11 @@ class EmployeeManagementApp(QWidget):
         
         # Persistent Bottom Action Bar
         action_layout = QHBoxLayout()
-        save_main_btn = QPushButton("Save Employee Data")
+        save_main_btn = QPushButton("Create" if not self.employee_data else "Update")
         cancel_main_btn = QPushButton("Cancel")
         
-        save_main_btn.setStyleSheet("font-weight: bold; padding: 5px 15px;")
-        cancel_main_btn.setStyleSheet("padding: 5px 15px;")
+        # save_main_btn.setStyleSheet("font-weight: bold; padding: 5px 15px;")
+        # cancel_main_btn.setStyleSheet("padding: 5px 15px;")
         
         action_layout.addStretch()
         action_layout.addWidget(save_main_btn)
@@ -150,12 +153,21 @@ class EmployeeManagementApp(QWidget):
         
         nationality = QComboBox()
         nationality.addItems(["Algerian", "Tunisian", "Moroccan", "Other"])
+        nationality.setEditable(True)
+        nationality.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        nationality.activated.connect(lambda index: self.handle_other_selection(index, nationality))
         form.addRow("Nationality:", nationality)
         
         group.setLayout(form)
         layout.addWidget(group)
         widget.setLayout(layout)
         return widget
+
+    def handle_other_selection(self, index, combo_box):
+        if combo_box.itemText(index) == "Other":
+            combo_box.setEditText("")  # Clears "Other" so they can type cleanly
+            combo_box.lineEdit().setFocus()
+            # combo_box.lineEdit().selectAll()
 
     # --- 2. CONTACT TAB ---
     def create_contact_tab(self):
@@ -318,7 +330,6 @@ class EmployeeManagementApp(QWidget):
         dialog = ContractDialog(self)
         dialog.exec()
 
-
 # ─────────────────────────────────────────────────────────────────
 # APPLICATION RUNNER
 # ─────────────────────────────────────────────────────────────────
@@ -326,8 +337,8 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     
     # Simple styling cleanup 
-    app.setStyle("Fusion") 
+    # app.setStyle("Fusion") 
     
-    window = EmployeeManagementApp()
+    window = EmployeeFormDialog()
     window.show()
     sys.exit(app.exec())
